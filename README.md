@@ -1,8 +1,8 @@
-# 🚀 API Week Triple Pack
+# API Week Triple Pack
 
 Three projects, three vibes, one goal: build chaotic things powered by public APIs.
 
-## 🎯 Challenges
+## Challenges
 
 | # | Challenge | Project |
 |---|-----------|---------|
@@ -10,7 +10,7 @@ Three projects, three vibes, one goal: build chaotic things powered by public AP
 | 2 | Build a useless hack with an API | 🌦️ VibeChecker |
 | 3 | Hack with a public API | 👾 Pokemon Roast |
 
-## 📦 Projects
+## Projects
 
 ### 1. 🚩 FlagBlitz (API Game)
 **File:** `FlagBlitz.html`  
@@ -26,8 +26,8 @@ Fast-paced flag guessing game with score, timer, streaks, hints, autocomplete, a
 - Flag rendering via live country data + flag image service
 
 **APIs:**
-- 🌍 **REST Countries API** – country metadata (name, region, capital, population, currencies, languages, cca2)
-- 🚩 **FlagsAPI** – flag image rendering by country code
+- 🌍 **REST Countries API** : country metadata (name, region, capital, population, currencies, languages, cca2)
+- 🚩 **FlagsAPI** : flag image rendering by country code
 
 ---
 
@@ -44,8 +44,8 @@ A weather-to-vibe translator that takes real weather data and outputs dramatic, 
 - Local fallback vibe text so it still works when API is unavailable
 
 **APIs:**
-- 🌡️ **Open-Meteo API** – current weather data
-- 🤖 **Optional AI endpoint** – `/api/vibe` through `vibeServer.js`
+- 🌡️ **Open-Meteo API** : current weather data
+- 🤖 **Optional AI endpoint** ; `/api/vibe` through `vibeServer.js`
 
 ---
 
@@ -62,7 +62,7 @@ Pick two Pokemon and watch them get roasted based on their real stats.
 - Local roast engine (no key required)
 
 **APIs:**
-- ⚡ **PokeAPI** – Pokemon stats, types, moves, sprites
+- ⚡ **PokeAPI** :Pokemon stats, types, moves, sprites
 
 ## 📊 API Summary
 
@@ -76,7 +76,7 @@ Pick two Pokemon and watch them get roasted based on their real stats.
 
 ---
 
-## 📂 Repository Structure
+##  Repository Structure
 
 ```
 api-week/
@@ -95,7 +95,7 @@ api-week/
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. **Static Serving** (HTML-only, no server)
 ```bash
