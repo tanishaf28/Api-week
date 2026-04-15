@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rainy Day Vibe Checker</title>
+<style>
+  :root {
+    --ink: #1f2a3a;
+    --muted: #64748b;
+    --glass: rgba(248, 252, 255, 0.72);
+    --line: rgba(172, 197, 225, 0.5);
+    --accent: #5a91bf;
+    --accent-2: #6b7fb8;
+    --warm: #f4b27c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body { 
+    font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif; 
+    min-height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    background:
+      radial-gradient(1200px 600px at 15% 0%, rgba(115, 148, 182, 0.5), transparent 60%),
+      radial-gradient(1000px 500px at 80% 100%, rgba(88, 122, 160, 0.45), transparent 58%),
+      linear-gradient(140deg, #1f2a3a 0%, #2e3f57 36%, #3e5878 70%, #24344a 100%);
+    background-size: 400% 400%;
+    animation: rainyShift 20s ease infinite;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,0.14) 0 36px, transparent 37px),
+      radial-gradient(circle at 19% 18%, rgba(255,255,255,0.14) 0 30px, transparent 31px),
+      radial-gradient(circle at 86% 14%, rgba(255,255,255,0.12) 0 40px, transparent 41px),
+      radial-gradient(circle at 92% 14%, rgba(255,255,255,0.12) 0 28px, transparent 29px),
+      radial-gradient(circle at 28% 84%, rgba(255,227,199,0.12) 0 44px, transparent 45px),
+      radial-gradient(circle at 73% 82%, rgba(255,227,199,0.12) 0 40px, transparent 41px);
+    pointer-events: none;
+    z-index: -2;
+  }
+
+  @keyframes rainyShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Rain animation */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      repeating-linear-gradient(
+        105deg,
+        transparent 0 18px,
+        rgba(223, 239, 255, 0.24) 18px 20px,
+        transparent 20px 42px
+      ),
+      repeating-linear-gradient(
+        103deg,
+        transparent 0 24px,
+        rgba(199, 221, 245, 0.14) 24px 26px,
+        transparent 26px 48px
+      );
+    background-size: 120px 120px, 90px 90px;
+    animation: rainDrop 0.8s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes rainDrop {
+    0% { transform: translateY(-50px); }
+    100% { transform: translateY(50px); }
+  }
+
+  .card { 
+    background: var(--glass);
+    border-radius: 28px; 
+    border: 1.5px solid rgba(225, 239, 255, 0.7);
+    padding: 40px; 
+    max-width: 760px; 
+    width: 100%;
+    box-shadow:
+      0 30px 70px rgba(10, 18, 30, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      inset 0 -30px 60px rgba(86, 114, 145, 0.12);
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -40px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(147, 191, 229, 0.22) 0%, rgba(147, 191, 229, 0) 70%);
+    pointer-events: none;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -45px;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 215, 160, 0.18) 0%, rgba(255, 215, 160, 0) 70%);
+    pointer-events: none;
+  }
+
+  h1 { 
+    font-size: 36px; 
+    font-weight: 800; 
+    letter-spacing: -0.5px; 
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #3f72a3 0%, #5f9abf 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  }
+
+  .tagline { 
+    font-size: 14px; 
+    color: #5e6c7d; 
+    margin-bottom: 28px;
+    text-align: center;
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  .meta-strip {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .meta-pill {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #4f6175;
+    background: rgba(255,255,255,0.6);
+  }
+
+  .input-group { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 24px; 
+  }
+
+  .input-group input { 
+    flex: 1; 
+    padding: 14px 18px; 
+    border: 1.5px solid #c5d7ea; 
+    border-radius: 12px; 
+    font-size: 15px; 
+    outline: none;
+    background: rgba(248, 252, 255, 0.78);
+    transition: all 0.3s;
+  }
+
+  .input-group input:focus { 
+    border-color: var(--accent);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
+  }
+
+  .input-group button { 
+    padding: 14px 26px; 
+    background: linear-gradient(135deg, #4f7ea9 0%, #5f77b0 100%);
+    color: white; 
+    border: none; 
+    border-radius: 12px; 
+    font-size: 15px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    white-space: nowrap;
+    transition: all 0.3s;
+    box-shadow: 0 8px 16px rgba(74, 123, 167, 0.28);
+  }
+
+  .input-group button:hover { 
+    background: linear-gradient(135deg, #3f6f9b 0%, #4b679a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(74, 123, 167, 0.4);
+  }
+
+  .input-group button:disabled { 
+    background: #bbb; 
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .weather-row { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 12px; 
+    margin-bottom: 24px; 
+  }
+
+  .w-stat { 
+    background: linear-gradient(135deg, rgba(233, 241, 250, 0.92) 0%, rgba(218, 231, 246, 0.92) 100%);
+    border-radius: 14px; 
+    padding: 16px; 
+    text-align: center;
+    border: 1px solid rgba(74, 123, 167, 0.26);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .w-stat::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, rgba(90,145,191,0.65) 50%, transparent 100%);
+  }
+
+  .w-stat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(74, 123, 167, 0.15);
+  }
+
+  .w-stat .val { 
+    font-size: 24px; 
+    font-weight: 700;
+    color: #2c5aa0;
+  }
+
+  .w-stat .lbl { 
+    font-size: 12px; 
+    color: #666; 
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  .vibe-box { 
+    background: linear-gradient(130deg, rgba(227, 242, 253, 0.78) 0%, rgba(240, 248, 255, 0.74) 52%, rgba(237, 231, 246, 0.66) 100%);
+    border-radius: 18px; 
+    padding: 28px; 
+    min-height: 140px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    border: 1.5px solid rgba(121, 152, 193, 0.34);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vibe-box::before {
+    content: '';
+    position: absolute;
+    width: 160%;
+    height: 55%;
+    left: -20%;
+    top: -35%;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 45%, rgba(255,255,255,0) 100%);
+    animation: sheen 6s linear infinite;
+  }
+
+  @keyframes sheen {
+    0% { transform: translateX(-30%); }
+    100% { transform: translateX(35%); }
+  }
+
+  .vibe-box p { 
+    font-size: 16px; 
+    line-height: 1.8; 
+    color: #333; 
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .vibe-emoji { 
+    font-size: 56px; 
+    text-align: center; 
+    margin-bottom: 12px;
+    animation: floatEmoji 3s ease-in-out infinite;
+  }
+
+  @keyframes floatEmoji {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .vibe-name { 
+    font-size: 28px; 
+    font-weight: 700; 
+    text-align: center; 
+    margin-bottom: 8px; 
+    background: linear-gradient(135deg, #456f9a 0%, #6f89c1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .vibe-score { 
+    font-size: 13px; 
+    color: #7a8fa8; 
+    text-align: center; 
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .disclaimer { 
+    font-size: 12px; 
+    color: #607083; 
+    text-align: center; 
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  .loading-dots::after { 
+    content: ""; 
+    animation: dots 1.5s infinite; 
+  }
+
+  @keyframes dots { 
+    0%,20%{content:"."} 
+    40%{content:".."} 
+    60%,100%{content:"..."} 
+  }
+
+  .city-suggestions { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 8px; 
+    margin-bottom: 22px; 
+    justify-content: center;
+  }
+
+  .city-chip { 
+    font-size: 13px; 
+    padding: 8px 16px; 
+    border: 1.5px solid #c8d8e9; 
+    border-radius: 20px; 
+    cursor: pointer; 
+    background: rgba(255,255,255,0.68); 
+    color: #4b6178;
+    transition: all 0.3s;
+    font-weight: 600;
+  }
+
+  .city-chip:hover { 
+    background: rgba(230, 243, 252, 0.92); 
+    border-color: #6a8fb4; 
+    color: #355e88;
+    transform: translateY(-2px);
+  }
+
+  .city-chip.active {
+    border-color: #6c8db0;
+    background: rgba(219, 235, 251, 0.95);
+    color: #345d86;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @media (max-width: 760px) {
+    .card {
+      padding: 24px;
+      border-radius: 22px;
+    }
+
+    h1 {
+      font-size: 30px;
+    }
+
+    .input-group {
+      flex-direction: column;
+    }
+
+    .weather-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1 style="text-align:center">Rainy Day Vibe</h1>
+  <p class="tagline">What's the vibe of your cozy corner of the world? ☕</p>
+
+  <div class="meta-strip">
+    <span class="meta-pill">Live Open-Meteo data</span>
+    <span class="meta-pill">Cozy mode enabled</span>
+    <span class="meta-pill" id="meta-line">Waiting for forecast...</span>
+  </div>
+
+  <div class="city-suggestions">
+    <span class="city-chip" onclick="setCity('Montreal')">🍁 Montreal</span>
+    <span class="city-chip" onclick="setCity('Tokyo')">🌧️ Tokyo</span>
+    <span class="city-chip" onclick="setCity('London')">☔ London</span>
+    <span class="city-chip" onclick="setCity('Seattle')">🏞️ Seattle</span>
+    <span class="city-chip" onclick="setCity('Dublin')">🍀 Dublin</span>
+    <span class="city-chip" onclick="setCity('Amsterdam')">🚴 Amsterdam</span>
+  </div>
+
+  <div class="input-group">
+    <input type="text" id="city-input" placeholder="Your cozy city..." value="Seattle" onkeydown="if(event.key==='Enter')checkVibe()">
+    <button id="check-btn" onclick="checkVibe()">Check Vibe ☕</button>
+  </div>
+
+  <div id="weather-row" class="weather-row" style="display:none"></div>
+  <div id="vibe-area" class="vibe-box">
+    <p style="color:#aaa">Enter a city to discover its rainy day vibes...</p>
+  </div>
+
+  <p class="disclaimer">🌧️ A cozy guide to finding peace in rainy days, powered by real weather data & a sprinkle of magic.</p>
+</div>
+
+<script>
+const VIBES = {
+  hot_sunny: { name: "Golden Hour Dreamer", emoji: "☀️", score: "79/100 cozy" },
+  cold_clear: { name: "Crisp Morning Soul", emoji: "❄️", score: "82/100 cozy" },
+  rainy: { name: "Rainy Day Philosopher", emoji: "🌧️", score: "95/100 cozy" },
+  snowy: { name: "Winter Cabin Magic", emoji: "❄️", score: "98/100 cozy" },
+  cloudy: { name: "Overcast Dreamer", emoji: "☁️", score: "88/100 cozy" },
+  stormy: { name: "Thunder Meditation", emoji: "⛈️", score: "92/100 cozy" },
+  mild_sunny: { name: "Gentle Peace", emoji: "🌸", score: "85/100 cozy" },
+  foggy: { name: "Misty Wonderland", emoji: "🌫️", score: "90/100 cozy" },
+};
+
+const GEOCODE = {
+  "montreal": [45.5017, -73.5673],
+  "tokyo": [35.6762, 139.6503],
+  "london": [51.5074, -0.1278],
+  "seattle": [47.6062, -122.3321],
+  "dublin": [53.3498, -6.2603],
+  "amsterdam": [52.3676, 4.9041],
+  "paris": [48.8566, 2.3522],
+  "berlin": [52.5200, 13.4050],
+  "toronto": [43.6532, -79.3832],
+  "vancouver": [49.2827, -123.1207],
+  "portland": [45.5152, -122.6784],
+  "portland, maine": [43.6591, -70.2568],
+  "stockholm": [59.3293, 18.0686],
+  "copenhagen": [55.6761, 12.5683],
+  "moscow": [55.7558, 37.6173],
+  "st petersburg": [59.9311, 30.3609],
+}
+
+function setCity(city) {
+  document.getElementById("city-input").value = city;
+  document.querySelectorAll(".city-chip").forEach(chip => {
+    const isActive = chip.textContent.toLowerCase().includes(city.toLowerCase());
+    chip.classList.toggle("active", isActive);
+  });
+}
+
+function classifyWeather(temp, precip, cloudcover, windspeed) {
+  if (precip > 3) return windspeed > 20 ? "stormy" : "rainy";
+  if (cloudcover > 80) return "cloudy";
+  if (cloudcover > 50 && temp < 10) return "foggy";
+  if (temp > 28 && cloudcover < 30) return "hot_sunny";
+  if (temp < 0) return "snowy";
+  if (temp < 10 && cloudcover < 40) return "cold_clear";
+  return "mild_sunny";
+}
+
+function generateLocalVibeText(city, weather, vibe) {
+  const drizzle = weather.precip > 2 ? "Rain taps on the windows like a tiny jazz drummer" : "The clouds are hanging low like a soft wool blanket";
+  const tempMood = weather.temp <= 8
+    ? "it is sweater weather with maximum blanket permissions"
+    : "the air is cool enough for tea but warm enough for a long walk";
+  const windMood = weather.wind > 20
+    ? "and the wind is dramatic in a poetic, umbrella-testing way"
+    : "and the wind is gentle, like pages turning in a library";
+
+  return `${city} is serving ${vibe.name} today: ${drizzle} with ${weather.cloud}% cloud cover and ${Math.round(weather.wind)} km/h breeze. At ${weather.temp}C, ${tempMood}, ${windMood}. Your official assignment is a warm drink, a lamp glow, and zero urgency.`;
+}
+
+async function getServerVibeText(payload) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2200);
+  try {
+    const vibeRes = await fetch("/api/vibe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    if (!vibeRes.ok) throw new Error("server unavailable");
+    const vibeData = await vibeRes.json();
+    return vibeData?.vibe || null;
+  } catch (_) {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function formatLocalTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+async function checkVibe() {
+  const city = document.getElementById("city-input").value.trim();
+  if (!city) return;
+
+  const btn = document.getElementById("check-btn");
+  btn.disabled = true;
+  btn.textContent = "Vibing...";
+
+  document.getElementById("vibe-area").innerHTML = '<p class="loading-dots" style="color:#888">Sensing the vibes</p>';
+  document.getElementById("weather-row").style.display = "none";
+
+  const key = city.toLowerCase();
+  let coords = GEOCODE[key];
+  if (!coords) {
+    const commonWords = key.split(" ");
+    const match = Object.keys(GEOCODE).find(k => commonWords.some(w => k.includes(w)));
+    coords = match ? GEOCODE[match] : [40.7128, -74.0060];
+  }
+  const [lat, lon] = coords;
+
+  try {
+    const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,cloudcover,windspeed_10m,weathercode&timezone=auto`);
+    if (!weatherRes.ok) throw new Error("weather service unavailable");
+    const weather = await weatherRes.json();
+    if (!weather?.current) throw new Error("no weather data returned");
+    const cur = weather.current;
+    const temp = Math.round(cur.temperature_2m);
+    const precip = cur.precipitation;
+    const cloud = cur.cloudcover;
+    const wind = cur.windspeed_10m;
+
+    const vibeKey = classifyWeather(temp, precip, cloud, wind);
+    const vibe = VIBES[vibeKey];
+
+    document.getElementById("weather-row").style.display = "grid";
+    document.getElementById("weather-row").innerHTML = `
+      <div class="w-stat"><div class="val">${temp}°C</div><div class="lbl">Temperature</div></div>
+      <div class="w-stat"><div class="val">${cloud}%</div><div class="lbl">Cloud cover</div></div>
+      <div class="w-stat"><div class="val">${Math.round(wind)} km/h</div><div class="lbl">Wind</div></div>
+      <div class="w-stat"><div class="val">${precip.toFixed(1)} mm</div><div class="lbl">Precipitation</div></div>
+    `;
+    document.getElementById("meta-line").textContent = `${city} • ${formatLocalTime()}`;
+
+    const payload = {
+      city: city,
+      temp: temp,
+      cloud: cloud,
+      wind: wind,
+      precip: precip,
+      vibeName: vibe.name
+    };
+
+    const serverText = await getServerVibeText(payload);
+    const vibeText = serverText || generateLocalVibeText(city, { temp, cloud, wind, precip }, vibe);
+
+    document.getElementById("vibe-area").innerHTML = `
+      <div style="width:100%">
+        <div class="vibe-emoji">${vibe.emoji}</div>
+        <div class="vibe-name">${vibe.name}</div>
+        <div class="vibe-score">${vibe.score}</div>
+        <p>${vibeText}</p>
+      </div>`;
+  } catch(e) {
+    document.getElementById("vibe-area").innerHTML = `<p style="color:#7a8fa8">Rain radar is sleepy right now. Try another city in a moment. (${e.message})</p>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Check Vibe ☕";
+}
+
+setCity("Seattle");
+</script>
+</body>
+</html>
+<!--
+  HOW THIS FILE WORKS:
+  1) UI + style are fully self-contained in this single HTML file (no external CSS/JS).
+  2) User enters a city; we map it to coordinates from GEOCODE.
+  3) checkVibe() requests current weather from Open-Meteo.
+  4) Weather values are classified into a vibe key (rainy, stormy, foggy, etc.).
+  5) We try to fetch extra vibe text from /api/vibe (optional backend/LLM route).
+  6) If /api/vibe fails, we generate local fallback text so the app still works.
+  7) DOM is updated with weather cards, vibe label/emoji, and themed visual effects.
+-->

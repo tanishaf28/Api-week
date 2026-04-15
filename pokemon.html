@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokémon Roast Battle Arena</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { 
+    font-family: 'Arial Rounded MT Bold', sans-serif;
+    background: linear-gradient(135deg, #FFD700 0%, #FF6B6B 25%, #4ECDC4 50%, #FFE66D 75%, #95E1D3 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .arena { max-width: 780px; width: 100%; }
+  
+  .header { text-align: center; margin-bottom: 30px; }
+  .pokeball-icon { font-size: 60px; margin-bottom: 10px; display: inline-block; animation: spin 3s linear infinite; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  
+  h1 { 
+    font-size: 42px; 
+    font-weight: 900; 
+    background: linear-gradient(45deg, #FF1744, #FFD600, #00E676);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  
+  .sub { 
+    text-align: center; 
+    font-size: 14px; 
+    color: #555; 
+    font-weight: 600;
+  }
+
+  .controls { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 25px; 
+    justify-content: center; 
+    flex-wrap: wrap;
+    background: white;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  
+  .controls input {
+    padding: 12px 16px;
+    background: #f9f9f9;
+    border: 3px solid #FFD600;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    outline: none;
+    width: 150px;
+    transition: all 0.3s;
+  }
+  
+  .controls input::placeholder { color: #aaa; }
+  .controls input:focus { 
+    border-color: #FF1744;
+    box-shadow: 0 0 15px rgba(255, 23, 68, 0.3);
+  }
+  
+  .controls button {
+    padding: 12px 24px;
+    border-radius: 15px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .btn-random {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  .btn-random:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  }
+  
+  .btn-roast {
+    background: linear-gradient(135deg, #FF1744 0%, #FF6B6B 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(255, 23, 68, 0.3);
+  }
+  .btn-roast:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 23, 68, 0.5);
+  }
+  .btn-roast:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .battlers {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .pokemon-card {
+    background: white;
+    border-radius: 20px;
+    border: 4px solid #FFD600;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pokemon-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top right, rgba(255, 215, 0, 0.1), transparent);
+    pointer-events: none;
+  }
+
+  .pokemon-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  }
+
+  .pokemon-card img {
+    width: 120px;
+    height: 120px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    margin: 0 auto;
+    display: block;
+  }
+
+  .pokemon-card .pname {
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: capitalize;
+    margin: 12px 0 10px;
+    color: #FF1744;
+    letter-spacing: 1px;
+  }
+
+  .pokemon-card .types {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .type-badge {
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    margin: 6px 0;
+    padding: 4px 8px;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+
+  .stat-row span:last-child {
+    color: #FF1744;
+    font-weight: 900;
+  }
+
+  .vs {
+    font-size: 48px;
+    font-weight: 900;
+    color: #FF1744;
+    text-align: center;
+    animation: pulse-vs 1s ease-in-out infinite;
+  }
+  @keyframes pulse-vs {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .roast-area {
+    background: linear-gradient(135deg, #fff0f0 0%, #fff9e6 100%);
+    border-radius: 20px;
+    border: 4px solid #FF1744;
+    padding: 30px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 40px rgba(255, 23, 68, 0.15);
+  }
+
+  .roast-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .roast-section { 
+    width: 100%;
+    animation: slideIn 0.6s ease-out;
+  }
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .roast-item {
+    margin-bottom: 20px;
+    padding: 0;
+    background: white;
+    border-radius: 15px;
+    border-left: 6px solid #FF1744;
+    box-shadow: 0 4px 15px rgba(255, 23, 68, 0.1);
+    transition: all 0.3s;
+    overflow: hidden;
+  }
+  .roast-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 8px 25px rgba(255, 23, 68, 0.2);
+  }
+
+  .roast-header {
+    font-size: 13px;
+    color: white;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0;
+    text-align: center;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #FF1744 0%, #FF6B6B 100%);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .roast-p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #333;
+    padding: 14px 16px;
+    font-weight: 500;
+    border-left: none;
+    margin-bottom: 0;
+    border-top: 1px solid #ffe0e0;
+  }
+
+  .roast-p:first-of-type { border-top: none; }
+
+  .verdict-section {
+    background: linear-gradient(135deg, #fff5a8 0%, #ffe6a8 100%);
+    border: 3px solid #FFD600;
+    border-radius: 15px;
+    padding: 0;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+
+  .verdict-section .roast-header {
+    background: linear-gradient(135deg, #FFD600 0%, #FFA500 100%);
+    color: white;
+  }
+
+  .verdict-section .roast-p {
+    background: white;
+  }
+
+  .winner-container {
+    text-align: center;
+    margin-top: 20px;
+    animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  @keyframes popIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.5) rotate(-10deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  .winner-tag {
+    background: linear-gradient(135deg, #FFD600 0%, #FF6B6B 100%);
+    color: white;
+    font-size: 14px;
+    font-weight: 900;
+    padding: 16px 32px;
+    border-radius: 30px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5);
+    border: 3px solid white;
+    transform: translateY(0);
+    transition: all 0.3s;
+  }
+  .winner-tag:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 18px 45px rgba(255, 107, 107, 0.6);
+  }
+
+  .loading-msg {
+    color: #FF1744;
+    font-size: 16px;
+    font-weight: 700;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 
+    0%, 100% { opacity: 1; } 
+    50% { opacity: 0.5; } 
+  }
+
+  .placeholder-poke {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #FFD600, #FFA500);
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+  }
+
+  .error-msg {
+    color: #FF1744;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="arena">
+  <div class="header">
+    <div class="pokeball-icon">&#x26BE;</div>
+    <h1>Pokémon Roast Battle</h1>
+    <p class="sub">Real stats from PokéAPI &#183; Pure Chaos &#183; No API Key Needed</p>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="p1-input" placeholder="Pokémon 1 (or #)" value="pikachu">
+    <input type="text" id="p2-input" placeholder="Pokémon 2 (or #)" value="magikarp">
+    <button class="btn-random" onclick="randomPoke()">&#127922; Random</button>
+    <button class="btn-roast" id="roast-btn" onclick="startRoast()">&#128293; START ROAST</button>
+  </div>
+
+  <div class="battlers">
+    <div class="pokemon-card" id="card1">
+      <div class="placeholder-poke">?</div>
+      <div class="pname">Challenger 1</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="pokemon-card" id="card2">
+      <div class="placeholder-poke">?</div>
+      <div class="pname">Challenger 2</div>
+    </div>
+  </div>
+
+  <div class="roast-area" id="roast-area">
+    <p class="roast-text">Enter two Pokémon names and hit START ROAST to unleash the chaos. Try Magikarp vs anything &#128514;</p>
+  </div>
+</div>
+
+<script>
+const TYPE_COLORS = {
+  fire: "#FF6B35",
+  grass: "#7AC74C",
+  water: "#6390F0",
+  electric: "#FFD600",
+  normal: "#A8A77A",
+  fighting: "#C22E28",
+  psychic: "#F95587",
+  ghost: "#735797",
+  dragon: "#6F35FC",
+  dark: "#705746",
+  steel: "#B7B7CE",
+  fairy: "#D685AD",
+  ice: "#96D9D6",
+  rock: "#B6A136",
+  ground: "#E2BF65",
+  flying: "#A98FF3",
+  bug: "#A6B91A",
+  poison: "#A33EA1"
+};
+
+const RANDOM_POKES = [
+  "charizard", "blastoise", "venusaur", "gengar", "mewtwo", "eevee", "snorlax",
+  "jigglypuff", "machamp", "haunter", "alakazam", "golem", "slowpoke", "rapidash",
+  "onix", "ditto", "scyther", "lapras", "vaporeon", "flareon", "articuno", "zapdos",
+  "moltres", "dragonite", "meowth", "persian", "arcanine", "gyarados", "leprechaun"
+];
+
+// Local roasting function (no API key needed!)
+function generateLocalRoast(p1, p2) {
+  const insults = {
+    lowHP: "probably faints looking at a stiff breeze",
+    lowAttack: "couldn't damage a wet napkin",
+    lowDefense: "as fragile as tissue paper in a rainstorm",
+    lowSpeed: "moves slower than a sleeping sloth",
+    highWeight: "needs to hit the gym, buddy",
+    normal: "is basically a literal pigeon",
+    fire: "is literally just a fire hazard",
+    water: "is just fancy wet",
+    ghost: "is existentially confused about life",
+    dragon: "wishes it had the hype of a REAL dragon",
+    psychic: "thinks it's smarter than it actually is"
+  };
+
+  const wins = [];
+  let p1Total = p1.stats.hp + p1.stats.attack + p1.stats.defense + p1.stats.speed;
+  let p2Total = p2.stats.hp + p2.stats.attack + p2.stats.defense + p2.stats.speed;
+
+  // Roast P1
+  let p1Roast = `${p1.name.toUpperCase()} is a joke. `;
+  if (p1.stats.hp < 40) p1Roast += `It ${insults.lowHP}. `;
+  if (p1.stats.attack < 45) p1Roast += `This thing ${insults.lowAttack}. `;
+  if (p1.stats.defense < 40) p1Roast += `It's ${insults.lowDefense}. `;
+  if (p1.stats.speed < 45) p1Roast += `Terrible speed, slow as molasses. `;
+  if (p1.weight > 200) p1Roast += `And it weighs ${p1.weight}kg—${insults.highWeight} `;
+  if (p1.types[0] === "normal") p1Roast += `Also it's NORMAL type. Boring. `;
+  if (!p1Roast.endsWith(". ")) p1Roast += `. It's just underwhelming.`;
+
+  // Roast P2
+  let p2Roast = `${p2.name.toUpperCase()} thinks it's special. `;
+  if (p2.stats.hp < 40) p2Roast += `It ${insults.lowHP}. `;
+  if (p2.stats.attack < 45) p2Roast += `This weakling ${insults.lowAttack}. `;
+  if (p2.stats.defense < 40) p2Roast += `It's ${insults.lowDefense}. `;
+  if (p2.stats.speed < 45) p2Roast += `Moves at a snail's pace. `;
+  if (p2.weight > 200) p2Roast += `Not to mention it weighs ${p2.weight}kg. ${insults.highWeight} `;
+  if (!p2Roast.endsWith(". ")) p2Roast += `. Wake up.`;
+
+  // Verdict
+  let verdict = "";
+  if (p1Total > p2Total) {
+    verdict = `${p1.name.toUpperCase()} wins by default because ${p2.name.toLowerCase()} is just that bad. Winner of the Shame Championship: ${p1.name}`;
+    wins.push(p1.name);
+  } else if (p2Total > p1Total) {
+    verdict = `${p2.name.toUpperCase()} barely squeaks out a win, but honestly they're both disasters. Winner of the Shame Championship: ${p2.name}`;
+    wins.push(p2.name);
+  } else {
+    verdict = `It's a tie in terrible-ness. Both get trophies for being equally useless. Winner of the Shame Championship: Draw`;
+  }
+
+  return {
+    p1: `ROAST OF ${p1.name.toUpperCase()}:\n${p1Roast}`,
+    p2: `ROAST OF ${p2.name.toUpperCase()}:\n${p2Roast}`,
+    verdict: `VERDICT:\n${verdict}`
+  };
+}
+
+async function fetchPokemon(nameOrId) {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${nameOrId.toLowerCase().trim()}`);
+  if (!res.ok) throw new Error(`Pokémon "${nameOrId}" not found`);
+  const data = await res.json();
+  return {
+    name: data.name,
+    id: data.id,
+    types: data.types.map(t => t.type.name),
+    sprite: data.sprites.front_default || data.sprites.other?.["official-artwork"]?.front_default,
+    stats: {
+      hp: data.stats.find(s => s.stat.name === "hp").base_stat,
+      attack: data.stats.find(s => s.stat.name === "attack").base_stat,
+      defense: data.stats.find(s => s.stat.name === "defense").base_stat,
+      speed: data.stats.find(s => s.stat.name === "speed").base_stat,
+      spAtk: data.stats.find(s => s.stat.name === "special-attack").base_stat,
+      spDef: data.stats.find(s => s.stat.name === "special-defense").base_stat,
+    },
+    moves: data.moves.slice(0, 5).map(m => m.move.name),
+    weight: data.weight / 10,
+    height: data.height / 10,
+  };
+}
+
+function renderCard(cardId, poke) {
+  const typeHtml = poke.types
+    .map(t => `<span class="type-badge" style="background:${TYPE_COLORS[t] || '#888'};">${t}</span>`)
+    .join("");
+  
+  document.getElementById(cardId).innerHTML = `
+    <img src="${poke.sprite}" alt="${poke.name}">
+    <div class="pname">${poke.name}</div>
+    <div class="types">${typeHtml}</div>
+    <div class="stat-row"><span>HP</span><span>${poke.stats.hp}</span></div>
+    <div class="stat-row"><span>Attack</span><span>${poke.stats.attack}</span></div>
+    <div class="stat-row"><span>Defense</span><span>${poke.stats.defense}</span></div>
+    <div class="stat-row"><span>Speed</span><span>${poke.stats.speed}</span></div>
+  `;
+}
+
+function randomPoke() {
+  const r1 = RANDOM_POKES[Math.floor(Math.random() * RANDOM_POKES.length)];
+  let r2;
+  do {
+    r2 = RANDOM_POKES[Math.floor(Math.random() * RANDOM_POKES.length)];
+  } while (r2 === r1);
+  document.getElementById("p1-input").value = r1;
+  document.getElementById("p2-input").value = r2;
+}
+
+async function startRoast() {
+  const p1name = document.getElementById("p1-input").value.trim();
+  const p2name = document.getElementById("p2-input").value.trim();
+  if (!p1name || !p2name) return;
+
+  const btn = document.getElementById("roast-btn");
+  btn.disabled = true;
+  btn.textContent = "Loading...";
+
+  document.getElementById("roast-area").innerHTML =
+    '<p class="loading-msg">Fetching Pokémon data from PokéAPI...</p>';
+
+  let p1, p2;
+  try {
+    [p1, p2] = await Promise.all([fetchPokemon(p1name), fetchPokemon(p2name)]);
+  } catch (e) {
+    document.getElementById("roast-area").innerHTML =
+      `<p class="roast-text error-msg">Error: ${e.message}</p>`;
+    btn.disabled = false;
+    btn.textContent = "🔥 START ROAST";
+    return;
+  }
+
+  renderCard("card1", p1);
+  renderCard("card2", p2);
+
+  document.getElementById("roast-area").innerHTML =
+    '<p class="loading-msg">Generating roast...</p>';
+
+  // Generate local roast (no API key needed!)
+  const roastData = generateLocalRoast(p1, p2);
+  
+  let html = '<div class="roast-section">';
+  
+  // P1 Roast
+  html += '<div class="roast-item">';
+  html += `<div class="roast-header">${roastData.p1.split('\n')[0]}</div>`;
+  html += `<div class="roast-p">${roastData.p1.split('\n')[1]}</div>`;
+  html += '</div>';
+  
+  // P2 Roast
+  html += '<div class="roast-item">';
+  html += `<div class="roast-header">${roastData.p2.split('\n')[0]}</div>`;
+  html += `<div class="roast-p">${roastData.p2.split('\n')[1]}</div>`;
+  html += '</div>';
+  
+  // Verdict
+  html += '<div class="roast-item verdict-section">';
+  html += `<div class="roast-header">${roastData.verdict.split('\n')[0]}</div>`;
+  html += `<div class="roast-p">${roastData.verdict.split('\n')[1]}</div>`;
+  html += '</div>';
+  
+  const winner = roastData.verdict.match(/Winner[^:]*:\s*([^\n.]+)/i);
+  if (winner) {
+    html += `<div class="winner-container"><span class="winner-tag">🏆 ${winner[1].trim()}</span></div>`;
+  }
+  
+  html += '</div>';
+  document.getElementById("roast-area").innerHTML = html;
+
+  btn.disabled = false;
+  btn.textContent = "🔥 START ROAST";
+}
+</script>
+
+<!-- 
+  ========================================
+  POKÉMON ROAST BATTLE ARENA - FILE SUMMARY
+  ========================================
+  
+  PROJECT OVERVIEW:
+  A fun, interactive web application that fetches real Pokémon data from the PokéAPI 
+  and generates hilarious roasts comparing two Pokémon based on their actual stats.
+  
+  KEY FEATURES:
+  - Real-time Pokémon data fetching from PokéAPI (HP, Attack, Defense, Speed, Types)
+  - Local roasting engine that generates funny insults based on stat comparisons
+  - Pokémon-themed UI with animated gradients & colorful design
+  - Type-specific color badges for visual appeal
+  - Random Pokémon selector for quick matchups
+  - Responsive design works on desktop and mobile
+  - Smooth animations and hover effects throughout
+  
+  MAIN COMPONENTS:
+  1. Header: Title, subtitle, and spinning Pokéball icon
+  2. Controls: Input fields for Pokémon names/IDs, Random & Start buttons
+  3. Battle Cards: Side-by-side Pokémon cards showing stats and types
+  4. Roast Area: Displays three sections (Roast of P1, Roast of P2, Verdict + Winner)
+  
+  JAVASCRIPT FUNCTIONS:
+  - fetchPokemon(nameOrId): Fetches Pokémon data from PokéAPI
+  - generateLocalRoast(p1, p2): Creates funny roasts based on stats (no API needed!)
+  - renderCard(cardId, poke): Displays Pokémon card with stats and types
+  - randomPoke(): Selects two random Pokémon from predefined list
+  - startRoast(): Main function orchestrating the entire roast battle
+  
+  STYLING HIGHLIGHTS:
+  - Animated gradient background (shifts colors continuously)
+  - Card hover effects with elevation & shadows
+  - Roast items with slide-in animations
+  - Winner tag with pop-in animation and hover effects
+  - Type badges with drop shadows
+  - Responsive grid layout for Pokémon cards
+  - Modern color scheme: reds (#FF1744), golds (#FFD600), teals (#4ECDC4)
+  
+  PUBLIC APIS USED:
+  - PokéAPI (https://pokeapi.co/) - Fetch real Pokémon stats, sprites, types
+  
+  HOW TO USE:
+  1. Enter two Pokémon names or Pokédex IDs (e.g., "pikachu" or "25")
+  2. Click "Random" to get random matchups
+  3. Click "START ROAST" to generate the battle
+  4. Enjoy the hilarious comparison roasts!
+  
+  DEPLOYMENT:
+  - Can be served with any static file server (works with Python's http.server)
+  - No backend dependencies required
+  - Open pokemon.html directly in browser or serve via localhost
+  
+  CUSTOMIZATION POSSIBLE:
+  - Modify RANDOM_POKES array for different Pokémon pool
+  - Edit TYPE_COLORS object for custom type badge colors
+  - Adjust insults in generateLocalRoast() for different humor styles
+  - Change color scheme in CSS for different visual theme
+-->
+</body>
+</html>

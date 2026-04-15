@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLAG BLITZ 🌍</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #111a2a;
+  --surface: #1c2a42;
+  --surface2: #243654;
+  --border: rgba(255,255,255,0.08);
+  --field-green: #0f5f4a;
+  --gold: #ffd166;
+  --flag-red: #ef233c;
+  --flag-white: #f8f9fa;
+  --flag-blue: #1d4ed8;
+  --neon-green: #00ff88;
+  --neon-pink: #ff2d78;
+  --neon-blue: #00d4ff;
+  --neon-yellow: #ffe600;
+  --text: #f0f0f8;
+  --text-muted: rgba(240,240,248,0.45);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Space Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden}
+
+/* Animated grid background */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.06) 1px, transparent 1px);
+  background-size:48px 48px;
+  animation:gridMove 20s linear infinite, gridPulse 3.5s ease-in-out infinite;
+  pointer-events:none;z-index:0;
+}
+@keyframes gridMove{from{background-position:0 0}to{background-position:48px 48px}}
+@keyframes gridPulse{0%,100%{opacity:0.72}50%{opacity:1}}
+
+body::after{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(135,206,250,0.2) 0%, transparent 56%),
+    radial-gradient(ellipse at 0% 100%, rgba(255,45,120,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 80%, rgba(0,255,136,0.12) 0%, transparent 45%),
+    repeating-linear-gradient(180deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, rgba(240,248,255,0.04), rgba(8,14,25,0.4));
+  pointer-events:none;z-index:0;
+}
+
+#app{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:1.5rem 1rem 3rem}
+#app::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.05) 0 1px, transparent 2px),
+    radial-gradient(circle at 40% 75%, rgba(255,255,255,0.06) 0 1px, transparent 2px),
+    radial-gradient(circle at 85% 65%, rgba(255,255,255,0.05) 0 1px, transparent 2px);
+  background-size: 240px 240px, 280px 280px, 220px 220px, 260px 260px;
+  animation: starDrift 18s linear infinite;
+  z-index:-1;
+}
+@keyframes starDrift{from{transform:translateY(0)}to{transform:translateY(18px)}}
+
+/* HEADER */
+.site-header{text-align:center;padding:2rem 0 1.5rem;position:relative}
+.site-header::before{
+  content:'🏁  🚩  🏳️  🚩  🏁';
+  display:block;
+  font-size:18px;
+  letter-spacing:10px;
+  opacity:0.95;
+  margin-bottom:0.45rem;
+  color: var(--gold);
+  filter:drop-shadow(0 0 10px rgba(255,209,102,0.35));
+}
+.logo{font-family:var(--font-display);font-size:clamp(52px,12vw,80px);letter-spacing:4px;line-height:1;
+  background:linear-gradient(90deg, var(--flag-red) 0 34%, var(--flag-white) 34% 67%, var(--flag-blue) 67% 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 16px rgba(239,35,60,0.28));
+}
+.logo-sub{font-size:13px;letter-spacing:5px;color:var(--text-muted);text-transform:uppercase;margin-top:4px}
+.api-note{font-size:11px;color:rgba(255,255,255,0.75);margin-top:8px;letter-spacing:1px}
+
+/* STATS ROW */
+.stats{display:flex;gap:8px;margin-bottom:1.25rem}
+.stat{flex:1;background:linear-gradient(180deg, #243654, #1f2e48);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:linear-gradient(90deg,var(--flag-red),var(--flag-white),var(--flag-blue));opacity:0.85}
+.stat-label{font-size:11px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px}
+.stat-val{font-family:var(--font-display);font-size:34px;letter-spacing:2px;line-height:1}
+.stat-val.green{color:var(--neon-green);text-shadow:0 0 12px rgba(0,255,136,0.5)}
+.stat-val.blue{color:var(--neon-blue);text-shadow:0 0 12px rgba(0,212,255,0.5)}
+.stat-val.pink{color:var(--neon-pink);text-shadow:0 0 12px rgba(255,45,120,0.5)}
+.stat-val.yellow{color:var(--neon-yellow);text-shadow:0 0 12px rgba(255,230,0,0.5)}
+
+/* PROGRESS BAR */
+.progress-wrap{height:5px;background:rgba(36,54,84,0.9);border-radius:3px;margin-bottom:1.25rem;overflow:hidden}
+.progress-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--neon-green),var(--neon-blue));
+  background-image:
+    linear-gradient(90deg,var(--neon-green),var(--neon-blue)),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.18) 0 8px, rgba(255,255,255,0.02) 8px 16px);
+  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 10px rgba(0,255,136,0.6)}
+
+/* MAIN FLAG CARD */
+.flag-card{
+  background:linear-gradient(180deg, rgba(37,56,86,0.96), rgba(28,43,68,0.96));
+  border:2px solid rgba(103,146,201,0.28);
+  border-radius:18px;
+  padding:2rem 1.5rem 1.5rem;
+  text-align:center;
+  margin-bottom:1rem;
+  position:relative;
+  overflow:hidden;
+  transition:transform 0.08s, border-color 0.2s;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.05), 0 16px 34px rgba(0,0,0,0.28);
+}
+.flag-card::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(0,212,255,0.2) 0 24%, transparent 48%),
+    radial-gradient(circle at 50% 44%, rgba(0,0,0,0.3) 0 15%, transparent 58%),
+    repeating-linear-gradient(
+      55deg,
+      rgba(239,35,60,0.09) 0 12px,
+      rgba(248,249,250,0.05) 12px 24px,
+      rgba(29,78,216,0.1) 24px 36px
+    ),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.18));
+  pointer-events:none;
+}
+.flag-card::after{
+  content:'';
+  position:absolute;
+  inset:-60% 30% auto;
+  height:220%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0));
+  transform:rotate(16deg);
+  animation:spotSweep 5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes spotSweep{0%,100%{opacity:0.25;transform:translateX(-35%) rotate(16deg)}50%{opacity:0.48;transform:translateX(8%) rotate(16deg)}}
+.flag-card.shake{animation:shake 0.4s ease}
+.flag-card.flash-green{border-color:var(--neon-green)!important;box-shadow:0 0 30px rgba(0,255,136,0.2)}
+.flag-card.flash-red{border-color:var(--neon-pink)!important;box-shadow:0 0 30px rgba(255,45,120,0.2)}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  15%{transform:translateX(-8px)}
+  30%{transform:translateX(8px)}
+  45%{transform:translateX(-6px)}
+  60%{transform:translateX(6px)}
+  75%{transform:translateX(-3px)}
+  90%{transform:translateX(3px)}
+}
+
+.round-badge{display:inline-block;font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--text-muted);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:4px 12px;margin-bottom:1rem;background:rgba(255,255,255,0.03)}
+.flag-emoji{display:flex;align-items:center;justify-content:center;min-height:120px;margin-bottom:0.75rem;
+  animation:flagIn 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.flag-image{width:160px;height:108px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 10px 24px rgba(0,0,0,0.32)}
+.flag-image{transition:transform 0.25s ease, box-shadow 0.25s ease; filter:saturate(1.08) contrast(1.04)}
+.flag-card:hover .flag-image{transform:translateY(-2px) scale(1.01);box-shadow:0 14px 28px rgba(0,0,0,0.42)}
+@keyframes flagIn{from{transform:scale(0.5) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+.region-chip{display:inline-block;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:#8de2ff;background:rgba(3,150,220,0.15);border:1px solid rgba(0,212,255,0.4);
+  border-radius:6px;padding:3px 10px;box-shadow:0 0 12px rgba(0,212,255,0.18)}
+
+/* HINTS GRID */
+.hints-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1rem}
+.hint-tile{background:linear-gradient(180deg,#294064,#223654);border:1px solid rgba(137,184,234,0.35);border-radius:8px;padding:8px 10px;
+  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.hint-tile.revealed{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.05)}
+.hint-tile.revealed .hint-val{color:var(--text)}
+.hint-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px}
+.hint-val{font-size:14px;font-weight:700;color:var(--text-muted);font-style:italic}
+.hint-val.live{color:var(--text);font-style:normal}
+
+/* STREAK BANNER */
+.streak-banner{
+  background:linear-gradient(90deg,rgba(255,230,0,0.15),rgba(255,165,0,0.1));
+  border:1px solid rgba(255,230,0,0.35);
+  border-radius:8px;padding:8px 14px;margin-bottom:10px;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--neon-yellow);
+  text-align:center;display:none;
+}
+.streak-banner.show{display:block;animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes popIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* INPUT */
+.input-wrap{position:relative;margin-bottom:6px}
+#guess-input{
+  width:100%;background:linear-gradient(180deg,#2a4268,#253b5c);border:1px solid rgba(0,212,255,0.38);border-radius:10px;
+  color:var(--text);font-family:var(--font-body);font-size:17px;padding:14px 16px;
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;letter-spacing:0.5px;
+}
+#guess-input:focus{border-color:rgba(0,212,255,0.5);box-shadow:0 0 0 3px rgba(0,212,255,0.08)}
+#guess-input::placeholder{color:var(--text-muted)}
+
+/* AUTOCOMPLETE */
+.autocomplete{
+  position:absolute;top:100%;left:0;right:0;z-index:50;
+  background:var(--surface2);border:1px solid rgba(0,212,255,0.25);
+  border-radius:0 0 10px 10px;overflow:hidden;display:none;
+}
+.autocomplete.open{display:block}
+.ac-item{padding:9px 16px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.1s}
+.ac-item:hover{background:rgba(0,212,255,0.08)}
+.ac-flag{font-size:20px}
+.ac-flag-img{width:24px;height:16px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,0.2)}
+
+/* FEEDBACK */
+.feedback{border-radius:8px;padding:10px 14px;font-size:12px;font-weight:700;letter-spacing:1px;
+  text-align:center;margin-bottom:8px;display:none;text-transform:uppercase}
+.feedback.correct{background:rgba(0,255,136,0.12);border:1px solid rgba(0,255,136,0.3);color:var(--neon-green);display:block}
+.feedback.wrong{background:rgba(255,45,120,0.12);border:1px solid rgba(255,45,120,0.3);color:var(--neon-pink);display:block}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:6px;margin-bottom:6px}
+.btn{
+  flex:1;padding:11px 8px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-family:var(--font-body);
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.15s;
+}
+.btn:hover{background:var(--surface);border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
+.btn:active{transform:scale(0.97)}
+.btn.primary{
+  background:linear-gradient(90deg,#00f08a,#00e6a8);color:#0a0a0f;border-color:#00f08a;
+  box-shadow:0 0 20px rgba(0,255,136,0.35);font-weight:700;
+}
+.btn.primary:hover{box-shadow:0 0 30px rgba(0,255,136,0.5);transform:translateY(-2px)}
+.btn.hint-btn{color:var(--neon-blue);border-color:rgba(0,212,255,0.3)}
+.btn.hint-btn:hover{background:rgba(0,212,255,0.08)}
+.btn.skip-btn{color:var(--text-muted)}
+.btn.skip-btn:disabled{opacity:0.3;cursor:not-allowed;transform:none}
+
+/* LOADING SCREEN */
+#loading{text-align:center;padding:4rem 1rem}
+.loading-flag{font-size:64px;animation:spin 1s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.loading-text{font-size:11px;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:1rem}
+.retry-btn{margin-top:14px;padding:10px 14px;border-radius:8px;border:1px solid rgba(0,212,255,0.35);background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:12px;cursor:pointer}
+.retry-btn:hover{background:var(--surface)}
+
+/* START SCREEN */
+#start-screen{display:none;text-align:center;padding:1rem 0 2rem}
+.start-flag-row{font-size:36px;margin-bottom:1.5rem;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.start-title{font-family:var(--font-display);font-size:28px;letter-spacing:3px;color:var(--text);margin-bottom:0.5rem}
+.start-desc{font-size:13px;letter-spacing:1px;color:var(--text-muted);line-height:1.9;margin-bottom:2rem}
+.start-desc strong{color:var(--neon-green)}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.5rem}
+.mode-card{background:linear-gradient(180deg,#2a4266,#24395a);border:1px solid var(--border);border-radius:10px;padding:1rem;
+  cursor:pointer;transition:all 0.2s;text-align:left}
+.mode-card:hover{border-color:rgba(0,212,255,0.4);background:rgba(0,212,255,0.05);transform:translateY(-2px)}
+.mode-card.selected{border-color:var(--neon-green);background:rgba(0,255,136,0.06);box-shadow:0 0 16px rgba(0,255,136,0.12)}
+.mode-icon{font-size:24px;margin-bottom:6px}
+.mode-name{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text);margin-bottom:3px}
+.mode-desc{font-size:11px;color:var(--text-muted)}
+
+/* END SCREEN */
+#end-screen{display:none;text-align:center;padding:1rem 0}
+.end-trophy{font-size:64px;margin-bottom:1rem;animation:bounceIn 0.6s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes bounceIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.end-title{font-family:var(--font-display);font-size:42px;letter-spacing:4px;margin-bottom:0.25rem;
+  background:linear-gradient(135deg,var(--neon-yellow),var(--neon-pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.end-score{font-size:14px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem}
+.end-score strong{color:var(--neon-green);font-size:30px}
+.results-list{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:0.75rem;margin-bottom:1.5rem;text-align:left}
+.result-row{display:flex;align-items:center;gap:10px;padding:7px 4px;
+  border-bottom:1px solid var(--border);font-size:14px}
+.result-row:last-child{border:none}
+.result-flag{font-size:22px;flex-shrink:0}
+.result-flag-img{width:30px;height:20px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,0.2)}
+.result-name{flex:1;color:var(--text)}
+.result-pts{font-weight:700;font-size:11px;letter-spacing:1px}
+.result-pts.green{color:var(--neon-green)}
+.result-pts.red{color:var(--neon-pink)}
+.grade-badge{display:inline-block;font-family:var(--font-display);font-size:48px;letter-spacing:3px;margin-bottom:0.5rem}
+.share-row{display:flex;gap:8px}
+
+/* CONFETTI */
+.confetti-piece{position:fixed;top:-10px;width:10px;height:10px;border-radius:2px;
+  animation:confettiFall linear forwards;pointer-events:none;z-index:999}
+@keyframes confettiFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+/* TIMER RING */
+.timer-ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:0.5rem}
+svg.timer-ring{transform:rotate(-90deg)}
+.timer-ring-text{position:absolute;font-family:var(--font-display);font-size:26px;letter-spacing:2px;line-height:1}
+
+/* MOBILE */
+@media(max-width:420px){
+  .stats{gap:5px}.stat-val{font-size:26px}
+  .flag-image{width:132px;height:90px}
+  .mode-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="site-header">
+    <div class="logo">FLAG BLITZ</div>
+    <div class="logo-sub">Powered by REST Countries API</div>
+    <div class="api-note" id="api-note">Live API mode</div>
+  </header>
+
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="loading-flag">🌍</div>
+    <div class="loading-text">Fetching all countries from API...</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <div class="start-flag-row" id="preview-flags">🇯🇵 🇧🇷 🇳🇬 🇸🇪 🇵🇹 🇰🇷</div>
+    <div class="start-title">CHOOSE YOUR MODE</div>
+    <div class="start-desc">
+      Guess countries from their flags.<br>
+      <strong>Faster = more points.</strong> Hints cost you.<br>
+      Beat the clock. Build your streak.
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card selected" data-mode="classic" onclick="selectMode(this,'classic')">
+        <div class="mode-icon">🌍</div>
+        <div class="mode-name">Classic</div>
+        <div class="mode-desc">10 rounds · 30s each · All regions</div>
+      </div>
+      <div class="mode-card" data-mode="blitz" onclick="selectMode(this,'blitz')">
+        <div class="mode-icon">⚡</div>
+        <div class="mode-name">Blitz</div>
+        <div class="mode-desc">15 rounds · 15s each · No hints</div>
+      </div>
+      <div class="mode-card" data-mode="europe" onclick="selectMode(this,'europe')">
+        <div class="mode-icon">🇪🇺</div>
+        <div class="mode-name">Europe</div>
+        <div class="mode-desc">10 rounds · European flags only</div>
+      </div>
+      <div class="mode-card" data-mode="asia" onclick="selectMode(this,'asia')">
+        <div class="mode-icon">🌏</div>
+        <div class="mode-name">Asia</div>
+        <div class="mode-desc">10 rounds · Asian flags only</div>
+      </div>
+    </div>
+    <button class="btn primary" style="width:100%;font-size:14px;padding:14px" onclick="startGame()">START GAME →</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" style="display:none">
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Score</div><div class="stat-val green" id="score">0</div></div>
+      <div class="stat" style="max-width:90px">
+        <div class="stat-label">Time</div>
+        <div class="timer-ring-wrap">
+          <svg class="timer-ring" width="46" height="46" viewBox="0 0 46 46">
+            <circle cx="23" cy="23" r="19" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3"/>
+            <circle id="timer-arc" cx="23" cy="23" r="19" fill="none" stroke="var(--neon-green)" stroke-width="3"
+              stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear,stroke 0.5s"/>
+          </svg>
+          <div class="timer-ring-text" id="timer-num">30</div>
+        </div>
+      </div>
+      <div class="stat"><div class="stat-label">Streak</div><div class="stat-val yellow" id="streak-val">0</div></div>
+      <div class="stat"><div class="stat-label">Round</div><div class="stat-val blue" id="round-val">1/10</div></div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+
+    <div class="flag-card" id="flag-card">
+      <div class="round-badge" id="round-badge">Round 1 of 10</div>
+      <span class="flag-emoji" id="flag-display">🏳</span>
+      <div class="region-chip" id="region-chip">Loading...</div>
+    </div>
+
+    <div class="hints-grid" id="hints-grid"></div>
+
+    <div class="streak-banner" id="streak-banner"></div>
+
+    <div class="input-wrap">
+      <input type="text" id="guess-input" placeholder="Type country name..." autocomplete="off" autocorrect="off" spellcheck="false"/>
+      <div class="autocomplete" id="autocomplete"></div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row">
+      <button class="btn primary" id="guess-btn" onclick="submitGuess()">GUESS ↵</button>
+      <button class="btn hint-btn" id="hint-btn" onclick="revealHint()">HINT (<span id="hints-left">4</span>)</button>
+      <button class="btn skip-btn" onclick="skipRound()">SKIP →</button>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen">
+    <div class="end-trophy" id="end-trophy">🏆</div>
+    <div class="grade-badge" id="grade-badge"></div>
+    <div class="end-title" id="end-title">GAME OVER</div>
+    <div class="end-score">Final score: <strong id="final-score">0</strong> pts</div>
+    <div class="results-list" id="results-list"></div>
+    <div class="share-row">
+      <button class="btn primary" style="font-size:12px" onclick="showStartScreen()">PLAY AGAIN</button>
+      <button class="btn" style="font-size:12px;color:var(--neon-blue)" onclick="copyScore()">COPY SCORE 📋</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ——— STATE ———
+let allCountries=[], pool=[], round=0, totalRounds=10, score=0, streak=0, maxStreak=0;
+let currentCountry=null, timerRef=null, timeLeft=30, maxTime=30;
+let hintsUsed=0, maxHints=3, roundResults=[];
+let gameMode='classic', roundActive=false;
+let bestScore = parseInt(localStorage.getItem('flagblitz_best')||'0');
+const MAX_VISIBLE_HINTS = 4;
+
+const HINT_DEFS=[
+  {key:'capital',label:'Capital',fmt:v=>Array.isArray(v)?v[0]:v||'N/A'},
+  {key:'population',label:'Population',fmt:v=>Number(v).toLocaleString()},
+  {key:'subregion',label:'Subregion',fmt:v=>v||'N/A'},
+  {key:'currencies',label:'Currency',fmt:v=>Object.values(v||{}).map(c=>c.name).join(', ')||'N/A'},
+  {key:'languages',label:'Language',fmt:v=>Object.values(v||{}).slice(0,2).join(', ')||'N/A'},
+  {key:'area',label:'Area km²',fmt:v=>Number(v).toLocaleString()},
+];
+
+// ——— LOAD ———
+async function loadCountries(){
+  const loadingEl = document.getElementById('loading');
+  const loadingText = loadingEl.querySelector('.loading-text');
+  const apiNote = document.getElementById('api-note');
+  // REST Countries /all requires fields and supports up to 10 fields.
+  const fields = 'name,capital,population,region,subregion,currencies,languages,area,cca2,altSpellings';
+  const endpoints = [
+    `https://restcountries.com/v3.1/all?fields=${fields}`,
+    `https://restcountries.com/v3.1/independent?status=true&fields=${fields}`
+  ];
+
+  try {
+    if (loadingText) loadingText.textContent = 'Fetching all countries from API...';
+    let data = null;
+    let lastError = 'unknown error';
+
+    for (const url of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        const r = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!r.ok) {
+          lastError = `${r.status} ${r.statusText}`;
+          continue;
+        }
+        const json = await r.json();
+        if (Array.isArray(json) && json.length) {
+          data = json;
+          break;
+        }
+        lastError = 'empty response array';
+      } catch (_) {
+        lastError = 'network error or timeout';
+      }
+    }
+
+    if (!data) throw new Error(`REST Countries API unavailable (${lastError})`);
+
+    // Keep the filter minimal and ensure flagsapi-compatible country codes exist.
+    allCountries = data
+      .map(c => {
+        if (!c?.name?.common || !c?.cca2) return null;
+        return { ...c, cca2: String(c.cca2).toUpperCase() };
+      })
+      .filter(Boolean);
+
+    if (!allCountries.length) throw new Error('API returned no playable countries');
+
+    loadingEl.style.display = 'none';
+    document.getElementById('start-screen').style.display = 'block';
+    setPreviewFlags();
+    if (apiNote) apiNote.textContent = `Live API mode • ${allCountries.length} countries loaded`;
+  } catch (e) {
+    if (apiNote) apiNote.textContent = 'Live API mode • unavailable';
+    loadingEl.innerHTML = `<div class="loading-flag">⚠️</div>
+      <div class="loading-text" style="color:#ff2d78">API unavailable: ${e.message}</div>
+      <button class="retry-btn" onclick="loadCountries()">Retry API load</button>`;
+  }
+}
+
+function setPreviewFlags(){
+  const sample=['🇯🇵','🇧🇷','🇳🇬','🇸🇪','🇵🇹','🇰🇷','🇲🇽','🇿🇦','🇹🇭','🇦🇷'];
+  document.getElementById('preview-flags').textContent=sample.join(' ');
+}
+
+function getFlagApiUrl(code, size=160, style='flat'){
+  const safeCode = String(code || '').toUpperCase();
+  const allowedSizes = [16, 24, 32, 48, 64];
+  const normalizedSize = allowedSizes.includes(Number(size)) ? Number(size) : 64;
+  return `https://flagsapi.com/${safeCode}/${style}/${normalizedSize}.png`;
+}
+
+function renderFlagHtml(country, size=160){
+  const code = String(country?.cca2 || '').toUpperCase();
+  if(!code) return '🏳️';
+  const flat = getFlagApiUrl(code, size, 'flat');
+  const shiny = getFlagApiUrl(code, size, 'shiny');
+  return `<img class="flag-image" src="${flat}" alt="Flag of ${country.name.common}" onerror="if(!this.dataset.f){this.dataset.f='1';this.src='${shiny}';}else{this.replaceWith(document.createTextNode('🏳️'));}">`;
+}
+
+function renderSmallFlagHtml(code){
+  const safeCode = String(code || '').toUpperCase();
+  if(!safeCode) return '🏳️';
+  const flat = getFlagApiUrl(safeCode, 32, 'flat');
+  const shiny = getFlagApiUrl(safeCode, 32, 'shiny');
+  return `<img class="ac-flag-img" src="${flat}" alt="${safeCode}" onerror="if(!this.dataset.f){this.dataset.f='1';this.src='${shiny}';}else{this.style.display='none';}">`;
+}
+
+function selectMode(el, mode){
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  gameMode=mode;
+}
+
+function showStartScreen(){
+  document.getElementById('end-screen').style.display='none';
+  document.getElementById('start-screen').style.display='block';
+}
+
+// ——— GAME START ———
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  return a;
+}
+
+function startGame(){
+  if(!allCountries.length){
+    showFeedback(false,'No API data loaded yet.');
+    return;
+  }
+
+  let source=allCountries;
+  if(gameMode==='europe') source=allCountries.filter(c=>c.region==='Europe');
+  else if(gameMode==='asia') source=allCountries.filter(c=>c.region==='Asia');
+
+  const requestedRounds=gameMode==='blitz'?15:10;
+  totalRounds=Math.min(requestedRounds, source.length);
+  maxTime=gameMode==='blitz'?15:30;
+  maxHints=gameMode==='blitz'?0:MAX_VISIBLE_HINTS;
+
+  if(totalRounds===0){
+    alert('No countries available for this mode from API right now.');
+    return;
+  }
+
+  pool=shuffle(source).slice(0,totalRounds);
+  round=0;score=0;streak=0;maxStreak=0;roundResults=[];
+
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  document.getElementById('score').textContent='0';
+  document.getElementById('streak-val').textContent='0';
+
+  nextRound();
+}
+
+// ——— ROUND ———
+function nextRound(){
+  if(round>=totalRounds){endGame();return;}
+  currentCountry=pool[round];
+  round++;
+  hintsUsed=0;
+  timeLeft=maxTime;
+  roundActive=true;
+
+  // UI reset
+  const fc=document.getElementById('flag-card');
+  fc.className='flag-card';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('guess-input').value='';
+  document.getElementById('autocomplete').className='autocomplete';
+  document.getElementById('streak-banner').className='streak-banner';
+  document.getElementById('hints-left').textContent=maxHints-hintsUsed;
+  document.getElementById('hint-btn').disabled=(maxHints===0);
+  if(maxHints===0) document.getElementById('hint-btn').style.opacity='0.3';
+  else document.getElementById('hint-btn').style.opacity='1';
+
+  // Update stats display
+  document.getElementById('round-val').textContent=`${round}/${totalRounds}`;
+  document.getElementById('round-badge').textContent=`Round ${round} of ${totalRounds}`;
+  document.getElementById('flag-display').innerHTML=renderFlagHtml(currentCountry, 64);
+  document.getElementById('region-chip').textContent=currentCountry.region||'Unknown';
+  document.getElementById('progress-bar').style.width=`${((round-1)/totalRounds)*100}%`;
+
+  renderHints(0);
+  updateTimer();
+  clearInterval(timerRef);
+  timerRef=setInterval(tick,1000);
+  setTimeout(()=>document.getElementById('guess-input').focus(),100);
+}
+
+function renderHints(revealed){
+  const grid=document.getElementById('hints-grid');
+  let html='';
+  for(let i=0;i<Math.min(MAX_VISIBLE_HINTS,HINT_DEFS.length);i++){
+    const h=HINT_DEFS[i];
+    if(i<revealed){
+      const raw=currentCountry[h.key];
+      const val=raw!=null?h.fmt(raw):'N/A';
+      html+=`<div class="hint-tile revealed"><div class="hint-lbl">${h.label}</div><div class="hint-val live">${val}</div></div>`;
+    } else {
+      html+=`<div class="hint-tile"><div class="hint-lbl">${h.label}</div><div class="hint-val">— locked</div></div>`;
+    }
+  }
+  grid.innerHTML=html;
+}
+
+function revealHint(){
+  if(hintsUsed>=maxHints||!roundActive)return;
+  hintsUsed++;
+  document.getElementById('hints-left').textContent=maxHints-hintsUsed;
+  if(hintsUsed>=maxHints) document.getElementById('hint-btn').disabled=true;
+  renderHints(hintsUsed);
+}
+
+// ——— TIMER ———
+function tick(){
+  timeLeft--;
+  updateTimer();
+  if(timeLeft<=0){
+    clearInterval(timerRef);
+    roundActive=false;
+    const card=document.getElementById('flag-card');
+    card.classList.add('flash-red','shake');
+    showFeedback(false,`⏱ TIME! It was ${currentCountry.name.common}`);
+    streak=0;
+    document.getElementById('streak-val').textContent='0';
+    roundResults.push({code:currentCountry.cca2,name:currentCountry.name.common,correct:false,reason:'timeout'});
+    setTimeout(nextRound,2200);
+  }
+}
+
+function updateTimer(){
+  const num=document.getElementById('timer-num');
+  const arc=document.getElementById('timer-arc');
+  num.textContent=timeLeft;
+  const circ=119.4;
+  const pct=timeLeft/maxTime;
+  arc.style.strokeDashoffset=circ*(1-pct);
+  if(pct<=0.33){arc.style.stroke='var(--neon-pink)';num.style.color='var(--neon-pink)'}
+  else if(pct<=0.6){arc.style.stroke='var(--neon-yellow)';num.style.color='var(--neon-yellow)'}
+  else{arc.style.stroke='var(--neon-green)';num.style.color='var(--text)'}
+}
+
+// ——— GUESS ———
+function normalize(s){
+  return String(s).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9 ]/g,'').trim();
+}
+
+function calcPoints(){
+  const base=10;
+  const timeBonus=Math.floor((timeLeft/maxTime)*20);
+  const hintPenalty=hintsUsed*3;
+  return Math.max(1,base+timeBonus-hintPenalty);
+}
+
+function submitGuess(){
+  if(!roundActive)return;
+  const input=document.getElementById('guess-input').value.trim();
+  if(!input)return;
+  const ni=normalize(input);
+  const nc=normalize(currentCountry.name.common);
+  const isCorrect=ni===nc||
+    (currentCountry.altSpellings||[]).some(a=>normalize(a)===ni)||
+    (currentCountry.name.official&&normalize(currentCountry.name.official)===ni)||
+    (currentCountry.name.nativeName&&Object.values(currentCountry.name.nativeName).some(n=>normalize(n.common||'')===ni));
+
+  clearInterval(timerRef);
+  roundActive=false;
+  document.getElementById('autocomplete').className='autocomplete';
+
+  if(isCorrect){
+    const pts=calcPoints();
+    score+=pts;
+    streak++;
+    if(streak>maxStreak)maxStreak=streak;
+    document.getElementById('score').textContent=score;
+    document.getElementById('streak-val').textContent=streak;
+    const fc=document.getElementById('flag-card');
+    fc.classList.add('flash-green');
+    showFeedback(true,`✓ CORRECT! +${pts} pts${hintsUsed?` (hint penalty −${hintsUsed*3})`:''}${timeLeft>=maxTime*0.8?' ⚡ LIGHTNING!':''}`);
+    if(streak>=3){
+      const sb=document.getElementById('streak-banner');
+      sb.textContent=`🔥 ${streak}× STREAK — YOU'RE ON FIRE!`;
+      sb.className='streak-banner show';
+    }
+    spawnConfetti();
+    roundResults.push({code:currentCountry.cca2,name:currentCountry.name.common,correct:true,pts});
+  } else {
+    streak=0;
+    document.getElementById('streak-val').textContent='0';
+    const fc=document.getElementById('flag-card');
+    fc.classList.add('flash-red','shake');
+    showFeedback(false,`✗ WRONG — it was ${currentCountry.name.common}`);
+    roundResults.push({code:currentCountry.cca2,name:currentCountry.name.common,correct:false,reason:'wrong'});
+  }
+  setTimeout(nextRound,2200);
+}
+
+function skipRound(){
+  if(!roundActive)return;
+  clearInterval(timerRef);
+  roundActive=false;
+  streak=0;
+  document.getElementById('streak-val').textContent='0';
+  roundResults.push({code:currentCountry.cca2,name:currentCountry.name.common,correct:false,reason:'skipped'});
+  document.getElementById('autocomplete').className='autocomplete';
+  nextRound();
+}
+
+function showFeedback(ok,msg){
+  const fb=document.getElementById('feedback');
+  fb.textContent=msg;
+  fb.className='feedback '+(ok?'correct':'wrong');
+}
+
+// ——— AUTOCOMPLETE ———
+document.addEventListener('DOMContentLoaded',()=>{
+  const input=document.getElementById('guess-input');
+  input.addEventListener('input',function(){
+    const q=this.value.trim().toLowerCase();
+    const box=document.getElementById('autocomplete');
+    if(q.length<2){box.className='autocomplete';return;}
+    const matches=allCountries.filter(c=>c.name.common.toLowerCase().startsWith(q)).slice(0,6);
+    if(!matches.length){box.className='autocomplete';return;}
+    box.innerHTML=matches.map(c=>`<div class="ac-item" onclick="pickAC('${c.name.common.replace(/'/g,"\\'")}')">`+
+      `<span>${c.name.common}</span></div>`).join('');
+    box.className='autocomplete open';
+  });
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')submitGuess();});
+  // Prevent browser back navigation on Backspace while playing.
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Backspace') return;
+    const t=e.target;
+    const editable = t && (
+      t.tagName==='INPUT' ||
+      t.tagName==='TEXTAREA' ||
+      t.isContentEditable
+    );
+    if(!editable) e.preventDefault();
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('.input-wrap'))document.getElementById('autocomplete').className='autocomplete';});
+});
+
+function pickAC(name){
+  document.getElementById('guess-input').value=name;
+  document.getElementById('autocomplete').className='autocomplete';
+  submitGuess();
+}
+
+// ——— CONFETTI ———
+function spawnConfetti(){
+  const colors=['#00ff88','#ff2d78','#00d4ff','#ffe600','#ff6b35','#c77dff'];
+  for(let i=0;i<28;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;`+
+      `background:${colors[Math.floor(Math.random()*colors.length)]};`+
+      `border-radius:${Math.random()>0.5?'50%':'2px'};`+
+      `animation-duration:${0.9+Math.random()*1.4}s;animation-delay:${Math.random()*0.4}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),(2400));
+  }
+}
+
+// ——— END GAME ———
+function endGame(){
+  clearInterval(timerRef);
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('end-screen').style.display='block';
+  document.getElementById('progress-bar').style.width='100%';
+
+  if(score>bestScore){
+    bestScore=score;
+    localStorage.setItem('flagblitz_best',bestScore);
+  }
+
+  const maxPossible=totalRounds*30;
+  const pct=score/maxPossible;
+  let grade,trophy,title;
+  if(pct>=0.9){grade='S';trophy='🏆';title='LEGENDARY'}
+  else if(pct>=0.75){grade='A';trophy='🥇';title='EXCELLENT'}
+  else if(pct>=0.55){grade='B';trophy='🥈';title='SOLID'}
+  else if(pct>=0.35){grade='C';trophy='🥉';title='DECENT'}
+  else{grade='D';trophy='😅';title='KEEP PRACTICING'}
+
+  document.getElementById('end-trophy').textContent=trophy;
+  document.getElementById('grade-badge').textContent=grade;
+  document.getElementById('end-title').textContent=title;
+  document.getElementById('final-score').textContent=score;
+
+  let html='';
+  for(const r of roundResults){
+    const icon=r.correct?'✅':r.reason==='skipped'?'⏭':'❌';
+    const pts=r.correct?`+${r.pts} pts`:'+0';
+    html+=`<div class="result-row"><span class="result-flag">${renderSmallFlagHtml(r.code)}</span>`+
+      `<span class="result-name">${r.name}</span>`+
+      `<span class="result-pts ${r.correct?'green':'red'}">${icon} ${pts}</span></div>`;
+  }
+  document.getElementById('results-list').innerHTML=html;
+  spawnConfetti();spawnConfetti();
+}
+
+function copyScore(){
+  const txt=`🌍 FLAG BLITZ — ${gameMode.toUpperCase()} MODE\nScore: ${score} pts | Streak: ${maxStreak}🔥\nBest ever: ${bestScore} pts\nPlay at: flagblitz.app`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=event.target;btn.textContent='COPIED! ✓';
+    setTimeout(()=>btn.textContent='COPY SCORE 📋',2000);
+  });
+}
+
+// ——— INIT ———
+loadCountries();
+</script>
+
+<!--
+CODE EXPLANATION (BOTTOM SUMMARY)
+
+1) Data Loading:
+  - loadCountries() fetches country metadata from REST Countries API.
+  - If API fails, it tries cached data from localStorage.
+  - If cache is unavailable, it falls back to EMERGENCY_COUNTRIES so gameplay still works offline.
+
+2) Game Flow:
+  - startGame() configures mode settings (rounds, timer, hints) and builds the question pool.
+  - nextRound() initializes UI for each flag and starts the countdown.
+  - submitGuess() validates user input against country names/alt spellings and awards points.
+  - skipRound() and timeout path both move to the next round without points.
+
+3) Scoring and Feedback:
+  - calcPoints() uses base points + time bonus - hint penalty.
+  - streak tracking increases excitement and shows bonus banner.
+  - visual feedback classes (flash-green, flash-red, shake) animate correctness.
+
+4) Helpers:
+  - normalize() removes accents/punctuation for flexible matching.
+  - autocomplete suggests countries while typing.
+  - spawnConfetti() adds celebration effects on correct answers and game end.
+
+5) Persistence:
+  - best score and country cache are stored in localStorage.
+  - this keeps the game usable even when network/API is unstable.
+-->
+</body>
+</html>
